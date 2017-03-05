@@ -1,0 +1,198 @@
+/**
+ * Copyright (c) 2017 by Delphix. All rights reserved.
+ */
+
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
+
+def gradleDir = file(Thread.currentThread().stackTrace.find { ste -> ste.fileName?.endsWith '.gradle' }.fileName).parent
+
+allprojects {
+    project.pluginManager.withPlugin('java') {
+        apply plugin: 'checkstyle'
+        apply plugin: 'eclipse'
+        apply plugin: 'idea'
+        apply plugin: 'jacoco'
+
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
+
+        repositories {
+            maven {
+                url 'http://artifactory.delphix.com/artifactory/jcenter'
+            }
+            maven {
+                 url 'http://artifactory.delphix.com/artifactory/pentaho'
+            }
+        }
+
+        checkstyle {
+            configFile file("${gradleDir}/../config/checkstyle/checkstyle.xml")
+            configProperties = [
+                "samedir": "${gradleDir}/../config/checkstyle"
+            ]
+            ignoreFailures false
+            toolVersion '7.3'
+        }
+
+        jacoco {
+            toolVersion = '0.7.6.201602180812'
+        }
+
+        project.tasks.withType(Test) { task ->
+            jacoco {
+                append = false
+            }
+            finalizedBy "jacoco${task.name.capitalize()}Report"
+        }
+    }
+
+    tasks.withType(JavaCompile) {
+
+        /* Necessary for Windows, which otherwise defaults to ascii */
+        options.encoding = 'UTF-8'
+
+        /*
+         * This list is taken from:
+         *
+         *     https://docs.oracle.com/javase/7/docs/technotes/tools/solaris/javac.html#xlintwarnings
+         */
+        options.compilerArgs << '-Werror'
+        options.compilerArgs << '-Xlint:deprecation'
+        options.compilerArgs << '-Xlint:fallthrough'
+        options.compilerArgs << '-Xlint:-options'
+        options.compilerArgs << '-Xlint:-rawtypes'
+        options.compilerArgs << '-Xlint:serial'
+        options.compilerArgs << '-Xlint:static'
+        options.compilerArgs << '-Xlint:-unchecked'
+        options.compilerArgs << '-Xlint:cast'
+        options.compilerArgs << '-Xlint:classfile'
+        options.compilerArgs << '-Xlint:dep-ann'
+        options.compilerArgs << '-Xlint:divzero'
+        options.compilerArgs << '-Xlint:empty'
+        options.compilerArgs << '-Xlint:finally'
+        options.compilerArgs << '-Xlint:overrides'
+        options.compilerArgs << '-Xlint:path'
+        options.compilerArgs << '-Xlint:-processing'
+        options.compilerArgs << '-Xlint:try'
+        options.compilerArgs << '-Xlint:varargs'
+        options.compilerArgs << '-Xmaxerrs' << '9999'
+        options.compilerArgs << '-Xmaxwarns' << '9999'
+    }
+
+    tasks.withType(Test) {
+        testLogging {
+
+            /* Print out a stack trace when tests fail. */
+            exceptionFormat = 'full'
+        }
+    }
+
+    /*
+     * Eclipse IDE configuration generation.
+     *
+     * See https://docs.gradle.org/current/userguide/eclipse_plugin.html
+     */
+    project.pluginManager.withPlugin('eclipse') {
+        /*
+         * By default Gradle's Eclipse plugin tries to merge settings with any existing .project/.classpath files. We do
+         * not want this, so explicitly delete all Eclipse configuration any time we want to regenerate it.
+         */
+        tasks.eclipse.dependsOn(cleanEclipse)
+
+        /*
+         * Merge JDT configuration properties from org.eclipse.jdt.core.prefs with those Gradle is already generating.
+         */
+        eclipse.jdt.file.withProperties { properties ->
+            new FileInputStream("${gradleDir}/../config/eclipse/settings/org.eclipse.jdt.core.prefs").withStream { is ->
+                properties.load(is)
+            }
+        }
+
+        /*
+         * Ignore warnings from auto-generated code.
+         */
+        eclipse.classpath.file.withXml { xml ->
+            def entries = xml.asNode().classpathentry.findAll { it.@kind == 'src' && it.@path.startsWith('build/') }
+            entries.each { entry ->
+                def attributesNode = entry.appendNode('attributes')
+                attributesNode.appendNode('attribute', [name: 'ignore_optional_problems', value: 'true'])
+            }
+        }
+
+        /*
+         * The Eclipse plugin doesn't have ability to generate certain per-project settings that we would like, in
+         * particular the disabling of xml validation. To work around this, we copy files containing these settings
+         * into the .settings directory of each project.
+         */
+        task eclipseWstValidation(type: Copy) {
+            from "${gradleDir}/../config/eclipse/settings/org.eclipse.wst.validation.prefs"
+            into relativePath('.settings/')
+        }
+        tasks.eclipse.dependsOn(eclipseWstValidation)
+        task cleanEclipseWstValidation(type: Delete) {
+            delete relativePath('.settings/org.eclipse.wst.validation.prefs')
+        }
+        tasks.cleanEclipse.dependsOn(cleanEclipseWstValidation)
+
+        /*
+         * The Gradle Eclipse plugin doesn't have the ability to generate Eclipse resources preferences. Here we copy
+         * our own to configure Eclipse to use the UTF-8 encoding, which is not the default on Windows.
+         */
+        task eclipseCoreResources(type: Copy) {
+            from "${gradleDir}/../config/eclipse/settings/org.eclipse.core.resources.prefs"
+            into relativePath('.settings/')
+        }
+        tasks.eclipse.dependsOn(eclipseCoreResources)
+        task cleanEclipseCoreResources(type: Delete) {
+            delete relativePath('.settings/org.eclipse.core.resources.prefs')
+        }
+        tasks.cleanEclipse.dependsOn(cleanEclipseCoreResources)
+
+        /*
+         * Gradle does not automatically generate a org.eclipse.jdt.ui.prefs file (that defines auto-formatting rules
+         * and on-save actions). We copy our version verbatim.
+         */
+        task eclipseJdtUi(type: Copy) {
+            from "${gradleDir}/../config/eclipse/settings/org.eclipse.jdt.ui.prefs"
+            into relativePath('.settings/')
+        }
+        tasks.eclipse.dependsOn(eclipseJdtUi)
+        task cleanEclipseJdtUi(type: Delete) {
+            delete relativePath('.settings/org.eclipse.jdt.ui.prefs')
+        }
+        tasks.cleanEclipse.dependsOn(cleanEclipseJdtUi)
+
+        /*
+         * Configure the Eclipse Checkstyle plugin.
+         */
+        eclipse.project.buildCommand 'net.sf.eclipsecs.core.CheckstyleBuilder'
+        eclipse.project.natures 'net.sf.eclipsecs.core.CheckstyleNature'
+
+        def checkstyleDir = file("${buildDir}/checkstyle")
+
+        /*
+         * Work around GRADLE-3002 by generating the .checkstyle file in a subdirectory of the project (for Gradle
+         * compatibility) and copying it to the root directory of the project in a doLast closure (for Eclipse
+         * Checkstyle plugin compatibility). While not exactly elegant, it's the only solution that works in Gradle 3.x
+         * (the workaround mentioned in the bug relies on Gradle 2.x functionality).
+         */
+        task eclipseCheckstyle(type: Copy) {
+            from "${gradleDir}/../config/checkstyle/.checkstyle"
+            into checkstyleDir
+            expand(configFile: rootProject.checkstyle.configFile)
+
+            doLast {
+                def src = file("${buildDir}/checkstyle/.checkstyle").toPath()
+                def dest = file("${projectDir}/.checkstyle").toPath()
+                Files.copy(src, dest, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES)
+            }
+        }
+        tasks.eclipse.dependsOn(eclipseCheckstyle)
+        task cleanEclipseCheckstyle(type: Delete) {
+            delete checkstyleDir
+            delete relativePath('.checkstyle')
+        }
+        tasks.cleanEclipse.dependsOn(cleanEclipseCheckstyle)
+    }
+}

@@ -1,0 +1,30 @@
+diff --git a/core/src/main/java/com/google/googlejavaformat/java/JavaCommentsHelper.java b/core/src/main/java/com/google/googlejavaformat/java/JavaCommentsHelper.java
+index 538a910..682ff26 100644
+--- a/core/src/main/java/com/google/googlejavaformat/java/JavaCommentsHelper.java
++++ b/core/src/main/java/com/google/googlejavaformat/java/JavaCommentsHelper.java
+@@ -41,9 +41,6 @@ public final class JavaCommentsHelper implements CommentsHelper {
+       return tok.getOriginalText();
+     }
+     String text = tok.getOriginalText();
+-    if (tok.isJavadocComment()) {
+-      text = JavadocFormatter.formatJavadoc(text, column0, options);
+-    }
+     List<String> lines = new ArrayList<>();
+     for (String line : NEWLINE_SPLITTER.split(text)) {
+       lines.add(CharMatcher.whitespace().trimTrailingFrom(line));
+diff --git a/core/src/main/java/com/google/googlejavaformat/java/JavaFormatterOptions.java b/core/src/main/java/com/google/googlejavaformat/java/JavaFormatterOptions.java
+index 4d556d9..b7d16e4 100644
+--- a/core/src/main/java/com/google/googlejavaformat/java/JavaFormatterOptions.java
++++ b/core/src/main/java/com/google/googlejavaformat/java/JavaFormatterOptions.java
+@@ -39,7 +39,7 @@ import com.google.errorprone.annotations.Immutable;
+ @Immutable
+ public class JavaFormatterOptions {
+ 
+-  static final int DEFAULT_MAX_LINE_LENGTH = 100;
++  static final int DEFAULT_MAX_LINE_LENGTH = 120;
+ 
+   public enum Style {
+ 
+-- 
+2.9.0
+

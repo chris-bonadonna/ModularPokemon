@@ -1,0 +1,184 @@
+/**
+ * Copyright (c) 2017 by Delphix. All rights reserved.
+ */
+
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+buildscript {
+    def gradleDir = file(Thread.currentThread().stackTrace.find { ste -> ste.fileName?.endsWith '.gradle' }.fileName).parent
+
+    dependencies {
+        classpath fileTree(dir: "${gradleDir}/../tools/google-java-format/", includes: ['google-java-format-1.1-SNAPSHOT-all-deps.jar'])
+    }
+}
+
+/*
+ * High-level task to format all projects.
+ */
+task formatProjects
+
+/*
+ * High-level task to check that all projects are formatted correctly.
+ */
+task checkFormat
+
+/*
+ * Leaf-node tasks to check that individual projects are formatted correctly.
+ */
+allprojects {
+    project.pluginManager.withPlugin('java') {
+        /*
+         * The scratch directory in which we perform formatting for the project.
+         */
+        File scratchDir = rootProject.file('format')
+
+        /*
+         * A Closure that returns a Set of java.nio.file.Path objects corresponding to each Java source directory of
+         * this project. The paths are relative to the root project. This Closure is used to determine which directories
+         * need to be copied to the scratch area.
+         */
+        Closure dirsToCopy = {
+            Set<java.nio.file.Path> dirs = [] as Set
+            sourceSets.all { sourceSet ->
+                sourceSet.allJava.srcDirs.findAll { it.exists() }.each { srcDir ->
+                    if (!project.projectDir.toPath().relativize(srcDir.toPath()).iterator().next().startsWith('build')) {
+                        dirs.add(rootDir.toPath().relativize(srcDir.toPath()))
+                    }
+                }
+            }
+            dirs
+        }
+
+        /*
+         * A Closure that returns a Set of java.nio.file.Path objects corresponding to each Java source file of this
+         * project. The paths are relative to the root project.
+         */
+        Closure filesToFormat = {
+            Set<java.nio.file.Path> files = [] as Set
+            sourceSets.all { sourceSet ->
+                sourceSet.allJava.srcDirs.findAll { it.exists() }.each { srcDir ->
+                    if (!project.projectDir.toPath().relativize(srcDir.toPath()).iterator().next().startsWith('build')) {
+                        fileTree(dir: srcDir, include: '**/*.java').each { file ->
+                            files.add(rootDir.toPath().relativize(file.toPath()))
+                        }
+                    }
+                }
+            }
+            files
+        }
+
+        /*
+         * The high-level task that checks the formatting of the project, failing if the project is not formatted
+         * correctly.
+         */
+        def checkProjectFormatTask = project.tasks.create(name: 'checkProjectFormat')
+
+        /*
+         * The task that creates the scratch directory in which we perform formatting for the project.
+         */
+        def createScratchDirTask = project.tasks.create(name: 'createScratchDir')
+        createScratchDirTask << {
+            scratchDir.mkdir()
+        }
+
+        /*
+         * The task that deletes the scratch directory in which we perform formatting for the project.
+         */
+        def deleteScratchDirTask = project.tasks.create(name: 'deleteScratchDir', type: Delete) {
+            delete scratchDir
+        }
+
+        /*
+         * The task that copies the Java source files of the project into the scratch directory, where they will be
+         * formatted. This uses the Project.copy() method rather than a Copy task because the list of directories to be
+         * copied is not known until evaluation time.
+         */
+        def copyProjectToScratchDirTask = project.tasks.create(name: 'copyProjectToScratchDir')
+        copyProjectToScratchDirTask << {
+            dirsToCopy().each { dir ->
+                java.nio.file.Path srcDir = rootDir.toPath().resolve(dir)
+                java.nio.file.Path destDir = scratchDir.toPath().resolve(dir)
+                copy {
+                    from srcDir.toFile()
+                    into destDir.toFile()
+                    include '**/*.java'
+                }
+            }
+        }
+
+        /*
+         * Creates a Closure that runs the formatter with our preferred options.
+         */
+        Closure makeFormatClosure = { base ->
+            return {
+                    def args = ['-a', '-i']
+                    filesToFormat().each { file ->
+                        args << base.toPath().resolve(file)
+                    }
+                    com.google.googlejavaformat.java.Main formatter =
+                            new com.google.googlejavaformat.java.Main(
+                                    new PrintWriter(new OutputStreamWriter(System.out, UTF_8), true),
+                                    new PrintWriter(new OutputStreamWriter(System.err, UTF_8), true),
+                                    System.in);
+                    int result = formatter.format(args as String[])
+                    com.google.common.base.Preconditions.checkState(result == 0)
+            }
+        }
+
+        /*
+         * The high-level task that formats the Java source files of the project within the main source directory.
+         */
+        def formatProjectTask = project.tasks.create(name: 'formatProject') {
+            onlyIf {
+                !filesToFormat().isEmpty()
+            }
+        }
+        formatProjectTask << makeFormatClosure(rootDir)
+
+        /*
+         * The task that formats the Java source files of the project within the scratch directory.
+         */
+        def formatScratchDirTask = project.tasks.create(name: 'formatScratchDir') {
+            onlyIf {
+                !filesToFormat().isEmpty()
+            }
+        }
+        formatScratchDirTask << makeFormatClosure(scratchDir)
+
+        /*
+         * The task that compares the scratch directory with the source directory and fails the build if there are any
+         * differences.
+         */
+        def compareFormattedTask = project.tasks.create(name: 'compareFormatted')
+        compareFormattedTask << {
+            def messageDigest = java.security.MessageDigest.getInstance('SHA')
+            Set<java.nio.file.Path> differences = [] as Set
+            filesToFormat().each { file ->
+                java.nio.file.Path srcFile = rootDir.toPath().resolve(file)
+                java.nio.file.Path destFile = scratchDir.toPath().resolve(file)
+                if (messageDigest.digest(srcFile.bytes) != messageDigest.digest(destFile.bytes)) {
+                    differences.add(srcFile)
+                }
+            }
+            if (!differences.isEmpty()) {
+                throw new GradleException(
+                        differences.join("\n")
+                        + "\n\nThe listed files are not formatted correctly. "
+                        + "Run ./gradlew formatProjects to format the files.")
+            }
+        }
+
+        /*
+         * Wire it all together.
+         */
+        checkFormat.dependsOn checkProjectFormatTask
+        checkProjectFormatTask.dependsOn compareFormattedTask
+        compareFormattedTask.dependsOn formatScratchDirTask
+        compareFormattedTask.finalizedBy deleteScratchDirTask
+        formatScratchDirTask.dependsOn copyProjectToScratchDirTask
+        copyProjectToScratchDirTask.dependsOn createScratchDirTask
+        formatProjects.dependsOn formatProjectTask
+    }
+}
+
+

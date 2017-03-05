@@ -1,0 +1,83 @@
+/*
+ * Copyright (c) 2016, 2017 by Delphix. All rights reserved.
+ */
+
+apply plugin: 'application'
+apply plugin: 'java'
+
+mainClassName = 'com.delphix.util.masking.dbmanager.ManagerCLI'
+
+repositories {
+    maven {
+        url 'http://artifactory.delphix.com/artifactory/jcenter'
+    }
+
+    maven {
+        url 'http://artifactory.delphix.com/artifactory/plugins.gradle.org'
+    }
+}
+
+dependencies {
+    compile 'com.google.guava:guava:' + guavaVer
+}
+
+apply plugin: 'distribution'
+apply plugin: 'eclipse-wtp'
+apply plugin: 'war'
+apply plugin: 'idea'
+
+apply from: file('gradle/format.gradle')
+apply from: file('gradle/convention.gradle')
+
+task buildSrcCheckFormat(type: GradleBuild) {
+    buildFile = file("buildSrc/build.gradle")
+    tasks = ['checkFormat']
+}
+
+task buildSrcFormatProject(type: GradleBuild) {
+    buildFile = file("buildSrc/build.gradle")
+    tasks = ['formatProject']
+}
+
+check.dependsOn checkFormat
+check.dependsOn buildSrcCheckFormat
+
+formatProject.dependsOn buildSrcFormatProject
+
+eclipse {
+    project {
+        buildCommand 'org.eclipse.ui.externaltools.ExternalToolBuilder',
+                LaunchConfigHandle: '<project>/.externalToolBuilders/ide-ant-builder.launch'
+
+        file {
+            /*
+             * Work around the Gradle Eclipse plugin's lack of support for build command triggers by parsing the XML and
+             * inserting it.
+             */
+            withXml {
+                def projectNode = it.asNode()
+                projectNode.iterator().each { subNode ->
+                    String subNodeText = subNode.toString()
+                    if (subNodeText.startsWith('buildSpec')) {
+                        subNode.iterator().each { buildCmd ->
+                            String nameNode = buildCmd.name
+                            if (nameNode.contains('ExternalToolBuilder')) {
+                                buildCmd.appendNode('triggers', 'full,incremental,')
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/*
+ * Build the Eclipse configuration in the buildSrc/ root project.
+ */
+task buildSrcEclipse(type: GradleBuild) {
+    buildFile = file("buildSrc/build.gradle")
+    tasks = ['eclipse']
+}
+
+tasks.eclipse.dependsOn buildSrcEclipse

@@ -1,0 +1,32 @@
+/*
+ * Copyright (c) 2017 by Delphix. All rights reserved.
+ */
+
+/*
+ * This is the root project of the buildSrc directory. See:
+ *
+ *     https://docs.gradle.org/current/userguide/organizing_build_logic.html#sec:build_sources
+ */
+
+apply plugin: 'java'
+
+buildscript {
+    repositories {
+        maven {
+            url 'http://artifactory.delphix.com/artifactory/plugins.gradle.org'
+        }
+    }
+}
+
+dependencies {
+    compile gradleApi()
+}
+
+repositories {
+    maven {
+        url 'http://artifactory.delphix.com/artifactory/jcenter'
+    }
+}
+
+apply from: "${rootProject.projectDir}/../gradle/format.gradle"
+apply from: "${rootProject.projectDir}/../gradle/convention.gradle"

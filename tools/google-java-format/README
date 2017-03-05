@@ -1,0 +1,22 @@
+Copyright (c) 2017 by Delphix. All rights reserved.
+
+
+
+This directory contains the google-java-format JAR used to format this Git repository. It was built from source from
+upstream commit 836b967 with the patch found in this directory.
+
+To update this JAR in the future, perform the following steps:
+
+ 1. Clone the repository from:
+
+        https://github.com/google/google-java-format.git
+
+ 2. Apply the patch found in this directory.
+
+ 3. Build the formatter:
+
+        mvn -Dmaven.test.skip=true install
+
+ 4. Copy the JAR from:
+
+        core/target/google-java-format-1.1-SNAPSHOT-all-deps.jar

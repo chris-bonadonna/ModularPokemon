@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Copyright (c) 2017 by Delphix. All rights reserved.
+-->
+
+<!DOCTYPE suppressions PUBLIC
+    "-//Puppy Crawl//DTD Suppressions 1.1//EN"
+    "http://www.puppycrawl.com/dtds/suppressions_1_1.dtd">
+
+<!--
+    Lists temporary exceptions to Checkstyle checks.
+-->
+<suppressions>
+
+	<suppress files="src[\\/]main[\\/]java[\\/]com[\\/]delphix[\\/]util[\\/]masking[\\/]dbmanager[\\/]exceptions[\\/]DatabaseManagerException.java" checks="MutableException"/>
+
+</suppressions>
