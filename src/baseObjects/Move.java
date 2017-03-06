@@ -1,51 +1,56 @@
 package baseObjects;
 
-import java.util.Set;
-
 import enums.DamageType;
 import enums.Type;
+import java.util.Set;
 import typeMappings.TypeMapping;
 
 public abstract class Move {
-    
+
     protected final int baseDamage;
     protected final Type type;
     protected final DamageType damageType;
     protected final Set<Effect> additionalEffects;
-    
+
     protected Move(int baseDamage, Type type, DamageType damageType, Set<Effect> additionalEffects) {
         this.baseDamage = baseDamage;
         this.type = type;
         this.damageType = damageType;
         this.additionalEffects = additionalEffects;
     }
-    
-    
+
     public int getBaseDamage() {
         return baseDamage;
     }
-    
+
     public Type getType() {
         return type;
     }
-    
+
     public Set<Effect> getAdditionalEffects() {
         return additionalEffects;
     }
-    
+
     public void use(Pokemon attacker, Pokemon defender) {
         defender.setCurrentHealth(defender.getCurrentHealth() - getDamage(attacker, defender));
     }
-    
+
     private int getDamage(Pokemon attacker, Pokemon defender) {
         double modifier = getModifier(attacker, defender);
-        int damage = new Double((((2 * attacker.getLevel() / 5) + 2)
-                * getBaseDamage() * getAttackStat(attacker) / getDefenseStat(defender) / 50 + 2)
-                * modifier).intValue();
+        int damage =
+                new Double(
+                                (((2 * attacker.getLevel() / 5) + 2)
+                                                        * getBaseDamage()
+                                                        * getAttackStat(attacker)
+                                                        / getDefenseStat(defender)
+                                                        / 50
+                                                + 2)
+                                        * modifier)
+                        .intValue();
         System.out.println(damage);
         return damage;
     }
-    
+
     private int getAttackStat(Pokemon pokemon) {
         switch (damageType) {
             case Physical:
@@ -56,7 +61,7 @@ public abstract class Move {
                 throw new RuntimeException("Invalid damage type: " + damageType);
         }
     }
-    
+
     private int getDefenseStat(Pokemon pokemon) {
         switch (damageType) {
             case Physical:
@@ -67,15 +72,15 @@ public abstract class Move {
                 throw new RuntimeException("Invalid damage type: " + damageType);
         }
     }
-    
+
     private double getModifier(Pokemon attacker, Pokemon defender) {
         return getRandom() * getStabBonus(attacker) * getMoveEffectiveness(defender);
     }
-    
+
     private double getRandom() {
         return (1 - Math.random() * .15);
     }
-    
+
     private double getStabBonus(Pokemon attacker) {
         if (attacker.getTypes().contains(type)) {
             return 1.5;
@@ -83,7 +88,7 @@ public abstract class Move {
             return 1.0;
         }
     }
-    
+
     private double getMoveEffectiveness(Pokemon defender) {
         double multiplier = 1.0;
         for (Type defenderType : defender.getTypes()) {

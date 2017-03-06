@@ -19,6 +19,14 @@ dependencies {
     compile 'com.google.guava:guava:' + guavaVer
 }
 
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src']
+        }
+    }
+}
+
 apply plugin: 'distribution'
 apply plugin: 'eclipse-wtp'
 apply plugin: 'war'

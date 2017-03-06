@@ -29,7 +29,7 @@ public enum Nature {
 
     private StatCategory increase;
     private StatCategory decrease;
-    
+
     static {
         Hardy.increase = StatCategory.None;
         Hardy.decrease = StatCategory.None;
@@ -82,11 +82,11 @@ public enum Nature {
         Quirky.increase = StatCategory.None;
         Quirky.decrease = StatCategory.None;
     }
-    
+
     public StatCategory getIncrease() {
         return increase;
     }
-    
+
     public StatCategory getDecrease() {
         return decrease;
     }

@@ -11,7 +11,7 @@ public class InfluenceValues {
     private final int defense;
     private final int specialDefense;
     private final int speed;
-    
+
     public InfluenceValues() {
         this.health = (int) (32 * Math.random());
         this.attack = (int) (32 * Math.random());
@@ -20,7 +20,7 @@ public class InfluenceValues {
         this.specialDefense = (int) (32 * Math.random());
         this.speed = (int) (32 * Math.random());
     }
-    
+
     public InfluenceValues(int health, int attack, int specialAttack, int defense, int specialDefense, int speed) {
         checkArgument(health < 32 && health >= 0);
         checkArgument(attack < 32 && attack >= 0);
