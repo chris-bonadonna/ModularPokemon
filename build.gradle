@@ -6,13 +6,7 @@ apply plugin: 'application'
 apply plugin: 'java'
 
 repositories {
-    maven {
-        url 'http://artifactory.delphix.com/artifactory/jcenter'
-    }
-
-    maven {
-        url 'http://artifactory.delphix.com/artifactory/plugins.gradle.org'
-    }
+    jcenter()
 }
 
 dependencies {
@@ -43,6 +37,10 @@ task buildSrcCheckFormat(type: GradleBuild) {
 task buildSrcFormatProject(type: GradleBuild) {
     buildFile = file("buildSrc/build.gradle")
     tasks = ['formatProject']
+}
+
+task getHomeDir << {
+    println gradle.gradleHomeDir
 }
 
 check.dependsOn checkFormat
