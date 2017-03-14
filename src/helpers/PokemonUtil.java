@@ -3,7 +3,7 @@ package helpers;
 import com.google.common.collect.ImmutableList;
 import enums.Nature;
 
-public class PokemonUtil {
+public final class PokemonUtil {
 
     private static final ImmutableList<Nature> natures = ImmutableList.copyOf(Nature.values());
 

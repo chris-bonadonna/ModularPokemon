@@ -1,9 +1,5 @@
 <?xml version="1.0"?>
 
-<!--
-    Copyright (c) 2017 by Delphix. All rights reserved.
--->
-
 <!DOCTYPE module PUBLIC
           "-//Puppy Crawl//DTD Check Configuration 1.3//EN"
           "http://www.puppycrawl.com/dtds/configuration_1_3.dtd">
@@ -28,13 +24,6 @@
 
     <module name="FileTabCharacter">
         <property name="eachLine" value="true"/>
-    </module>
-
-    <module name="RegexpHeader">
-        <property name="header" value="^/\*$\n^ \* Copyright \(c\) (\d{4}, )?\d{4} by Delphix\. All rights reserved\.$\n^ \*/$"/>
-        <property name="fileExtensions" value="java"/>
-        <message key="header.mismatch" value="Invalid or missing Delphix copyright header."/>
-        <message key="header.missing" value="Invalid or missing Delphix copyright header."/>
     </module>
 
     <module name="NewlineAtEndOfFile">

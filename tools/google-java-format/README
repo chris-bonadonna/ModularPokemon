@@ -1,7 +1,3 @@
-Copyright (c) 2017 by Delphix. All rights reserved.
-
-
-
 This directory contains the google-java-format JAR used to format this Git repository. It was built from source from
 upstream commit 836b967 with the patch found in this directory.
 

@@ -1,8 +1,4 @@
 /*
- * Copyright (c) 2017 by Delphix. All rights reserved.
- */
-
-/*
  * This is the root project of the buildSrc directory. See:
  *
  *     https://docs.gradle.org/current/userguide/organizing_build_logic.html#sec:build_sources

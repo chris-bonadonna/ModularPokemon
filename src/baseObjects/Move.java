@@ -78,7 +78,7 @@ public abstract class Move {
     }
 
     private double getRandom() {
-        return (1 - Math.random() * .15);
+        return 1 - Math.random() * .15;
     }
 
     private double getStabBonus(Pokemon attacker) {

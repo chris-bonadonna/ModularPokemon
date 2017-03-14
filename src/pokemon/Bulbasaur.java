@@ -27,6 +27,6 @@ public class Bulbasaur extends Pokemon {
     }
 
     private static Set<Move> getAvailableMoves() {
-        return new HashSet<Move>(Arrays.asList((new Tackle())));
+        return new HashSet<Move>(Arrays.asList(new Tackle()));
     }
 }

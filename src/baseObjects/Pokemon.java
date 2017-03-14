@@ -84,10 +84,4 @@ public abstract class Pokemon {
     public int getLevel() {
         return level;
     }
-
-    //    public abstract void levelUp();
-    //
-    //    public Pokemon evolve() {
-    //        throw new UnsupportedOperationException("This pokemon can't evolve!");
-    //    }
 }

@@ -1,3 +1,5 @@
+package util;
+
 import baseObjects.Pokemon;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -5,7 +7,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 import pokemon.Bulbasaur;
 
-public class Runner {
+public final class Runner {
+
+    private Runner() {
+        throw new RuntimeException("Default constructor suppressed for non-instantiability");
+    }
+
     public static void main(String[] args) {
         Bulbasaur bulbasaur1 = new Bulbasaur();
         System.out.println(bulbasaur1.getId());
