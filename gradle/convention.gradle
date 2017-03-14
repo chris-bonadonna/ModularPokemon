@@ -18,11 +18,9 @@ allprojects {
         targetCompatibility = 1.8
 
         repositories {
+            jcenter()
             maven {
-                url 'http://artifactory.delphix.com/artifactory/jcenter'
-            }
-            maven {
-                 url 'http://artifactory.delphix.com/artifactory/pentaho'
+                 url 'http://repo.pentaho.org/artifactory/repo'
             }
         }
 

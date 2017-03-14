@@ -10,22 +10,13 @@
 
 apply plugin: 'java'
 
-buildscript {
-    repositories {
-        maven {
-            url 'http://artifactory.delphix.com/artifactory/plugins.gradle.org'
-        }
-    }
-}
 
 dependencies {
     compile gradleApi()
 }
 
 repositories {
-    maven {
-        url 'http://artifactory.delphix.com/artifactory/jcenter'
-    }
+	jcenter()
 }
 
 apply from: "${rootProject.projectDir}/../gradle/format.gradle"
