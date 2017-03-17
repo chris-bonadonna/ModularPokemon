@@ -4,16 +4,16 @@ public class BaseStats {
 
     protected final int health;
     protected final int attack;
-    protected final int specialAttack;
     protected final int defense;
+    protected final int specialAttack;
     protected final int specialDefense;
     protected final int speed;
 
-    protected BaseStats(int health, int attack, int specialAttack, int defense, int specialDefense, int speed) {
+    protected BaseStats(int health, int attack, int defense, int specialAttack, int specialDefense, int speed) {
         this.health = health;
         this.attack = attack;
-        this.specialAttack = specialAttack;
         this.defense = defense;
+        this.specialAttack = specialAttack;
         this.specialDefense = specialDefense;
         this.speed = speed;
     }
@@ -26,12 +26,12 @@ public class BaseStats {
         return attack;
     }
 
-    public int getSpecialAttack() {
-        return specialAttack;
-    }
-
     public int getDefense() {
         return defense;
+    }
+
+    public int getSpecialAttack() {
+        return specialAttack;
     }
 
     public int getSpecialDefense() {

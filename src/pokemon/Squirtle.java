@@ -6,32 +6,33 @@ package pokemon;
 
 import baseObjects.Move;
 import baseObjects.Pokemon;
-import baseStats.CharmanderStats;
+import baseStats.SquirtleStats;
 import enums.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import moves.Scratch;
+import moves.Tackle;
 
-public class Charmander extends Pokemon {
-
-    public Charmander() {
+/**
+ *
+ */
+public class Squirtle extends Pokemon {
+    public Squirtle() {
         super(
-                4,
-                new ArrayList<Type>(Arrays.asList(Type.Fire)),
+                7,
+                new ArrayList<Type>(Arrays.asList(Type.Water)),
                 getAvailableMoves(),
                 getStartingMoves(),
-                new CharmanderStats());
+                new SquirtleStats());
     }
-
     private static List<Move> getStartingMoves() {
-        return new ArrayList<Move>(Arrays.asList(new Scratch()));
+        return new ArrayList<Move>(Arrays.asList(new Tackle()));
     }
 
     private static Set<Move> getAvailableMoves() {
-        return new HashSet<Move>(Arrays.asList(new Scratch()));
+        return new HashSet<Move>(Arrays.asList((new Tackle())));
     }
 }
 
