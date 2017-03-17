@@ -1,7 +1,3 @@
-/**
- * Copyright (c) 2017 by Delphix. All rights reserved.
- */
-
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 buildscript {

@@ -3,7 +3,11 @@ package typeMappings;
 import com.google.common.collect.ImmutableTable;
 import enums.Type;
 
-public class TypeMapping {
+public final class TypeMapping {
+
+    private TypeMapping() {
+        throw new RuntimeException("Default constructor suppressed for non-instantiability.");
+    }
 
     // Parameterized as Attacker, Defender, Multiplier
     public static final ImmutableTable<Type, Type, Double> typeMapping =
