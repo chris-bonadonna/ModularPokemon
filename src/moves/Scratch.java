@@ -13,6 +13,6 @@ import java.util.HashSet;
 public class Scratch extends Move {
 
     public Scratch() {
-        super(40, Type.Normal, DamageType.Physical,new HashSet<Effect>());
+        super(40, Type.Normal, DamageType.Physical, new HashSet<Effect>());
     }
 }

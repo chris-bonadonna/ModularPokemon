@@ -34,4 +34,3 @@ public class Charmander extends Pokemon {
         return new HashSet<Move>(Arrays.asList(new Scratch()));
     }
 }
-

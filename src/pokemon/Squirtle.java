@@ -27,12 +27,12 @@ public class Squirtle extends Pokemon {
                 getStartingMoves(),
                 new SquirtleStats());
     }
+
     private static List<Move> getStartingMoves() {
         return new ArrayList<Move>(Arrays.asList(new Tackle()));
     }
 
     private static Set<Move> getAvailableMoves() {
-        return new HashSet<Move>(Arrays.asList((new Tackle())));
+        return new HashSet<Move>(Arrays.asList(new Tackle()));
     }
 }
-
