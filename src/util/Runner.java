@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import pokemon.Bulbasaur;
+import pokemon.Charmander;
 
 public final class Runner {
 
@@ -16,21 +17,21 @@ public final class Runner {
     public static void main(String[] args) {
         Bulbasaur bulbasaur1 = new Bulbasaur();
         System.out.println(bulbasaur1.getId());
-        Bulbasaur bulbasaur2 = new Bulbasaur();
-        System.out.println(bulbasaur2.getId());
+        Charmander charmander1 = new Charmander();
+        System.out.println(charmander1.getId());
         System.out.println();
-        List<Pokemon> fighting = getPokemonOrder(bulbasaur1, bulbasaur2);
+        List<Pokemon> fighting = getPokemonOrder(bulbasaur1, charmander1);
         while (!endBattle(fighting)) {
             for (Pokemon pokemon : fighting) {
-                System.out.println("Bulbasaur1: " + bulbasaur1.getCurrentHealth());
-                System.out.println("Bulbasaur2: " + bulbasaur2.getCurrentHealth());
+                System.out.println("Bulbasaur: " + bulbasaur1.getCurrentHealth());
+                System.out.println("Charmander: " + charmander1.getCurrentHealth());
                 pokemon.getCurrentMoves()
                         .get(0)
                         .use(
                                 pokemon,
                                 fighting.stream().filter(x -> !x.equals(pokemon)).collect(Collectors.toList()).get(0));
-                System.out.println("Bulbasaur1: " + bulbasaur1.getCurrentHealth());
-                System.out.println("Bulbasaur2: " + bulbasaur2.getCurrentHealth());
+                System.out.println("Bulbasaur: " + bulbasaur1.getCurrentHealth());
+                System.out.println("Charmander: " + charmander1.getCurrentHealth());
                 System.out.println("==============================================");
                 if (endBattle(fighting)) {
                     break;
