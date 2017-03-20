@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2017 by Delphix. All rights reserved.
- */
-
 package pokemon;
 
 import baseObjects.Move;
@@ -15,9 +11,6 @@ import java.util.List;
 import java.util.Set;
 import moves.Tackle;
 
-/**
- *
- */
 public class Squirtle extends Pokemon {
     public Squirtle() {
         super(

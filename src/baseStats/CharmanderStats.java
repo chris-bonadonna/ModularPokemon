@@ -1,14 +1,7 @@
-/*
- * Copyright (c) 2017 by Delphix. All rights reserved.
- */
-
 package baseStats;
 
 import baseObjects.BaseStats;
 
-/**
- *
- */
 public class CharmanderStats extends BaseStats {
 
     public CharmanderStats() {

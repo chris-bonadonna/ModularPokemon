@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2017 by Delphix. All rights reserved.
- */
-
 package pokemon;
 
 import baseObjects.Move;
